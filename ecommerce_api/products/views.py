@@ -4,8 +4,8 @@ import django_filters
 from rest_framework.decorators import action
 from rest_framework.response import Response
 from django.db.models import Q
-from .models import Product, Category
-from .serializers import ProductSerializer, CategorySerializer
+from .models import Product, Category, Order, Review
+from .serializers import ProductSerializer, CategorySerializer, OrderSerializer, ReviewSerializer
 from ecommerce_api.pagination import ProductPagination # Import the pagination class
 
 
@@ -66,3 +66,28 @@ class ProductViewSet(viewsets.ModelViewSet):
 class CategoryViewSet(viewsets.ModelViewSet):
     queryset = Category.objects.all()
     serializer_class = CategorySerializer
+
+
+class OrderViewSet(viewsets.ModelViewSet):
+    queryset = Order.objects.all()
+    serializer_class = OrderSerializer
+    permission_classes = [permissions.IsAuthenticated] # Only logged-in users can place orders
+
+    def get_queryset(self):
+        return Order.objects.filter(user=self.request.user)
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+
+class ReviewViewSet(viewsets.ModelViewSet):
+    serializer_class = ReviewSerializer
+    permission_classes = [permissions.IsAuthenticatedOrReadOnly] # Allow reading by all, creating by authenticated
+
+    def get_queryset(self):
+        product_id = self.request.query_params.get('product_id', None)
+        if product_id:
+            return Review.objects.filter(product_id=product_id)
+        return Review.objects.all()
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
