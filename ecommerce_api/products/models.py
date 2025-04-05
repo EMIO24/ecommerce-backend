@@ -17,6 +17,13 @@ class Product(models.Model):
     stock_quantity = models.IntegerField()
     image_url = models.URLField(blank=True, null=True)
     created_date = models.DateTimeField(default=timezone.now)
+    
+    def reduce_stock(self, quantity):
+        if self.stock_quantity >= quantity:
+            self.stock_quantity -= quantity
+            self.save()
+            return True
+        return False
 
     def __str__(self):
         return self.name
