@@ -3,17 +3,23 @@ from django.contrib.auth.models import User
 from rest_framework import serializers
 
 class UserSerializer(serializers.ModelSerializer):
+    """
+    Serializer for the User model.
+    Handles user creation with password hashing.
+    """
     password = serializers.CharField(write_only=True)
-  
+
     class Meta:
         model = User
         fields = ('id', 'username', 'email', 'first_name', 'last_name', 'password')
         extra_kwargs = {
-            'password': {'write_only': True},
             'id': {'read_only': True}
         }
 
     def create(self, validated_data):
+        """
+        Creates and returns a new User instance, properly hashing the password.
+        """
         user = User.objects.create_user(
             username=validated_data['username'],
             email=validated_data['email'],
