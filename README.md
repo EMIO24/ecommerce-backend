@@ -23,7 +23,6 @@ Endpoint: POST /register/
 Request Body:
 
 json
-Copy
 {
     "username": "newuser",
     "email": "newuser@example.com",
